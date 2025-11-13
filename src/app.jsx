@@ -1,45 +1,39 @@
-import React, { useState } from 'react'
-import Header from './components/Header'
-import Landing from './pages/Landing'
-import GetStartedModal from './components/GetStartedModal'
-import Home from './pages/Home' // after login/connected
+import React, { useState, useEffect } from "react";
+import Header from "./components/Header";
+import Landing from "./pages/Landing";
+import Home from "./pages/Home";
+import AuthPage from "./pages/Auth";
+import { Auth } from "./utils/auth";
 
-export default function App(){
-  const [showModal, setShowModal] = useState(false)
-  const [authed, setAuthed] = useState(false)
-  const [route, setRoute] = useState('landing') // 'landing' or 'home'
+export default function App() {
+  const [route, setRoute] = useState("landing");
+  const [user, setUser] = useState(null);
 
-  const openGetStarted = () => setShowModal(true)
-  const closeGetStarted = () => setShowModal(false)
-
-  const handleConnectWallet = async () => {
-    if (!window.ethereum) return alert('Install MetaMask or Binance Wallet')
-    try {
-      const accs = await window.ethereum.request({ method: 'eth_requestAccounts' })
-      // you can set account to state or global store:
-      setAuthed(true)
-      setRoute('home')
-      setShowModal(false)
-    } catch (e){
-      console.error(e)
-      alert('Connection failed')
+  useEffect(() => {
+    const u = Auth.getUser();
+    if (u) {
+      setUser(u);
+      setRoute("home");
     }
-  }
+  }, []);
 
-  const handleRegister = (form) => {
-    // for hackathon MVP: simple client-side stub
-    if (!form.email || !form.name || form.password !== form.confirm) return alert('Please complete form & ensure passwords match')
-    setAuthed(true)
-    setRoute('home')
-    setShowModal(false)
-  }
+  const handleLogin = (u) => {
+    setUser(u);
+    setRoute("home");
+  };
+
+  const handleLogout = () => {
+    Auth.logout();
+    setUser(null);
+    setRoute("landing");
+  };
 
   return (
     <div>
-      <Header />
-      { route === 'landing' && <Landing onGetStarted={openGetStarted} /> }
-      { route === 'home' && <Home /> }
-      <GetStartedModal open={showModal} onClose={closeGetStarted} onConnectWallet={handleConnectWallet} onRegister={handleRegister} />
+      <Header onLogout={handleLogout} user={user} />
+      {route === "landing" && <Landing onGetStarted={() => setRoute("auth")} />}
+      {route === "auth" && <AuthPage onLogin={handleLogin} />}
+      {route === "home" && <Home user={user} />}
     </div>
-  )
+  );
 }
