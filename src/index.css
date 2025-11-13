@@ -18,3 +18,14 @@ body {
   50% { filter: brightness(1.25); transform: scale(1.02); }
   100% { filter: brightness(1); transform: scale(1); }
 }
+/* slow spin */
+@keyframes spin-slow { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }
+.animate-spin-slow { animation: spin-slow 18s linear infinite; }
+
+/* pulse class used by tickers */
+.pulse { animation: pulseTicker 2s infinite; }
+@keyframes pulseTicker {
+  0% { transform: scale(1); filter: brightness(1) }
+  50% { transform: scale(1.03); filter: brightness(1.15) }
+  100% { transform: scale(1); filter: brightness(1) }
+}
